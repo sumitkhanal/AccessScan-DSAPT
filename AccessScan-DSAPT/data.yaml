@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 9
+names: ['Obstruction', 'clear_path', 'handrail', 'kerb_cut', 'platform_edge', 'ramp', 'signage', 'stairs', 'tgsi']
+
+roboflow:
+  workspace: accessscamdsapt
+  project: accessscan-dsapt
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/accessscamdsapt/accessscan-dsapt/dataset/1

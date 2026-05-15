@@ -1,0 +1,2 @@
+AccessScan is a proof-of-concept system that uses computer vision to automatically assess accessibility features and barriers at public transport infrastructure. The system captures images or video using a smartphone, detects DSAPT-relevant features, maps them to compliance requirements, and generates a structured report.
+The target is TRL 3 — a working proof of concept that demonstrates technical feasibility 

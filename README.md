@@ -1,22 +1,4 @@
-# AccessScan — Sprint 4 Setup Guide
-
-accessscan/
-├── main.py            ← FastAPI backend (NEW - Sprint 4)
-├── depth.py           ← MiDaS depth estimation (UPDATED - dynamic image)
-├── compliance.py      ← DSAPT compliance classifier (Sprint 3)
-├── dsapt_rules.py     ← DSAPT rules dictionary (Sprint 3)
-├── score.py           ← Compliance score calculator (Sprint 3)
-├── report.py          ← PDF report generator (NEW - Sprint 4)
-├── requirements.txt   ← Python dependencies
-├── static/
-│   └── index.html     ← Web upload UI (NEW - Sprint 4)
-└── runs/
-    └── detect/
-        └── accessscan-v1/
-            └── weights/
-                └── best.pt    ← Your trained YOLOv8 weights (from Sprint 2)
-```
-
+# AccessScan
 ## Setup & Run
 
 ### 1. Install dependencies

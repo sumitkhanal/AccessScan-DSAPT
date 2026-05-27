@@ -2,16 +2,16 @@ task: detect
 mode: train
 model: yolov8s.pt
 data: AccessScan-DSAPT/data.yaml
-epochs: 50
+epochs: 100
 time: null
-patience: 10
+patience: 20
 batch: 16
 imgsz: 640
 save: true
 save_period: -1
 cache: false
 device: '0'
-workers: 8
+workers: 4
 project: null
 name: accessscan-v1
 exist_ok: false
@@ -107,4 +107,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: D:\projects\Project_AccessScan_DSAPT\runs\detect\accessscan-v1
+save_dir: D:\projects\AcessScan_DSAPT_project\runs\detect\accessscan-v1

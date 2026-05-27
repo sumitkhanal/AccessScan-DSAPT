@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccessScan — DSAPT Accessibility Audit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:         #0d1117;
+      --surface:    #161b22;
+      --border:     #30363d;
+      --accent:     #2196f3;
+      --accent-dim: #1565c0;
+      --green:      #1a7a4a;
+      --red:        #c0392b;
+      --amber:      #e67e22;
+      --text:       #e6edf3;
+      --muted:      #8b949e;
+      --mono:       'IBM Plex Mono', monospace;
+      --sans:       'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo-badge {
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+    }
+    header span {
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+      margin-left: auto;
+    }
+
+    /* ── Main layout ── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 40px;
+    }
+
+    @media (max-width: 800px) {
+      main { grid-template-columns: 1fr; padding: 20px; }
+      header { padding: 14px 20px; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+    }
+    .card + .card { margin-left: 20px; }
+    @media (max-width: 800px) { .card + .card { margin-left: 0; margin-top: 16px; } }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    /* ── Drop zone ── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .drop-zone.dragover,
+    .drop-zone:hover {
+      border-color: var(--accent);
+      background: rgba(33,150,243,.06);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-icon { font-size: 36px; margin-bottom: 12px; }
+    .drop-text { font-size: 14px; color: var(--muted); line-height: 1.5; }
+    .drop-text strong { color: var(--text); }
+
+    /* ── Preview ── */
+    #preview {
+      margin-top: 16px;
+      border-radius: 6px;
+      overflow: hidden;
+      display: none;
+    }
+    #preview img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    #preview-name {
+      background: rgba(33,150,243,.15);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 12px;
+    }
+
+    /* ── Form fields ── */
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; margin-top: 16px; }
+    input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+
+    /* ── Button ── */
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    button:hover:not(:disabled) { background: var(--accent-dim); }
+    button:active:not(:disabled) { transform: scale(.98); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Progress ── */
+    #progress {
+      margin-top: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 99px;
+      height: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      width: 0%;
+      transition: width .4s ease;
+    }
+    .progress-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── Results panel ── */
+    #result-panel { display: none; }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .score-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 4px solid var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: var(--mono);
+      flex-shrink: 0;
+    }
+    .score-circle .score-num { font-size: 20px; font-weight: 700; }
+    .score-circle .score-pct { font-size: 10px; color: var(--muted); }
+
+    .score-meta h2 { font-size: 18px; font-weight: 700; }
+    .score-meta p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Status badge */
+    .badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: .05em;
+    }
+    .badge-COMPLIANT     { background: rgba(26,122,74,.2);  color: #4caf86; }
+    .badge-NON-COMPLIANT { background: rgba(192,57,43,.2);  color: #e57373; }
+    .badge-NEEDS-REVIEW  { background: rgba(230,126,34,.2); color: #ffb74d; }
+
+    /* Detection list */
+    .detect-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .detect-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .detect-cls {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+      min-width: 90px;
+    }
+    .detect-body { flex: 1; }
+    .detect-clause { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-bottom: 2px; }
+    .detect-note   { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .detect-conf   { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+
+    /* Download button */
+    .download-btn {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      padding: 11px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: background .2s;
+      width: 100%;
+    }
+    .download-btn:hover { background: rgba(33,150,243,.1); }
+
+    /* Error */
+    .error-box {
+      background: rgba(192,57,43,.12);
+      border: 1px solid rgba(192,57,43,.4);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 13px;
+      color: #e57373;
+      margin-top: 16px;
+      display: none;
+    }
+
+    /* API hint */
+    .api-hint {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">AccessScan</div>
+  <h1>DSAPT Accessibility Audit</h1>
+  <span>La Trobe University × DITRDCA · TRL 3 PoC</span>
+</header>
+
+<main>
+  <!-- Left: Upload form -->
+  <div class="card">
+    <div class="card-title">Upload Site Image</div>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="imageInput" accept="image/*" />
+      <div class="drop-icon">📷</div>
+      <div class="drop-text">
+        <strong>Drop an image here</strong><br/>
+        or click to browse<br/>
+        <small>JPG, PNG · bus stop, tram stop, train platform</small>
+      </div>
+    </div>
+
+    <div id="preview">
+      <img id="previewImg" src="" alt="Preview" />
+      <div id="preview-name"></div>
+    </div>
+
+    <label for="siteName">Site Name (optional)</label>
+    <input type="text" id="siteName" placeholder="e.g. Flinders Street Station North Entry" />
+
+    <button id="auditBtn" onclick="runAudit()" disabled>Run Accessibility Audit</button>
+
+    <div id="progress">
+      <div class="progress-label" id="progressLabel">Uploading image…</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="api-hint">
+      API endpoint: <strong>POST /audit</strong><br/>
+      Fields: <code>file</code> (image), <code>site_name</code> (text)
+    </div>
+  </div>
+
+  <!-- Right: Results -->
+  <div class="card">
+    <div class="card-title">Compliance Results</div>
+
+    <div id="placeholder" style="color:var(--muted);font-size:13px;line-height:1.7;">
+      Upload a site image and click <strong>Run Audit</strong> to see DSAPT compliance results here.<br/><br/>
+      Detected features will be mapped to:
+      <ul style="margin-top:8px;margin-left:18px;font-size:12px;">
+        <li>DSAPT clause</li>
+        <li>Compliance status (COMPLIANT / NON-COMPLIANT / NEEDS REVIEW)</li>
+        <li>Automated notes</li>
+      </ul>
+      <br/>A downloadable PDF report will be generated automatically.
+    </div>
+
+    <div id="result-panel">
+      <div class="score-row">
+        <div class="score-circle" id="scoreCircle">
+          <span class="score-num" id="scoreNum">—</span>
+          <span class="score-pct">%</span>
+        </div>
+        <div class="score-meta">
+          <h2 id="scoreLabel">—</h2>
+          <p id="scoreSub"></p>
+        </div>
+      </div>
+
+      <ul class="detect-list" id="detectList"></ul>
+
+      <a class="download-btn" id="downloadLink" href="#" download="AccessScan-Report.pdf">
+        ⬇ Download PDF Report
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+  const API_BASE = 'http://localhost:8000';
+  let selectedFile = null;
+
+  // ── Drag & drop ─────────────────────────────────────────────────────────────
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('imageInput');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('previewImg').src = e.target.result;
+      document.getElementById('preview-name').textContent = file.name;
+      document.getElementById('preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    document.getElementById('auditBtn').disabled = false;
+    hideError();
+  }
+
+  // ── Audit ────────────────────────────────────────────────────────────────────
+  async function runAudit() {
+    if (!selectedFile) return;
+
+    const btn = document.getElementById('auditBtn');
+    btn.disabled = true;
+    showProgress('Uploading image…', 20);
+    hideError();
+    document.getElementById('result-panel').style.display = 'none';
+    document.getElementById('placeholder').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('site_name', document.getElementById('siteName').value || 'Unknown Site');
+
+    try {
+      showProgress('Running YOLOv8 detection…', 45);
+
+      const response = await fetch(`${API_BASE}/audit`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      showProgress('Running compliance check…', 70);
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: response.statusText }));
+        throw new Error(err.detail || 'Audit failed');
+      }
+
+      showProgress('Generating PDF report…', 90);
+
+      // Read headers before consuming body
+      const jobId    = response.headers.get('X-Job-Id') || '—';
+      const score    = response.headers.get('X-Score') || '?';
+      const label    = response.headers.get('X-Score-Label') || '—';
+      const detCount = response.headers.get('X-Detections') || '?';
+
+      // Get PDF blob
+      const blob = await response.blob();
+      const pdfUrl = URL.createObjectURL(blob);
+
+      showProgress('Done!', 100);
+      setTimeout(() => hideProgress(), 800);
+
+      // Show score
+      renderScore(parseFloat(score), label, jobId, detCount);
+
+      // Fetch JSON results for display — for PoC we render from headers + re-call
+      // Since the API returns PDF directly, we show a summary and link.
+      // To get full detection JSON, you'd add a /results/{job_id} endpoint.
+      renderPlaceholderResults(score, label, detCount, jobId);
+
+      // Set download link
+      const dl = document.getElementById('downloadLink');
+      dl.href = pdfUrl;
+      dl.download = `AccessScan-Report-${jobId}.pdf`;
+
+      document.getElementById('result-panel').style.display = 'block';
+
+    } catch (err) {
+      hideProgress();
+      showError(err.message);
+      document.getElementById('placeholder').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderScore(score, label, jobId, detCount) {
+    const circle = document.getElementById('scoreCircle');
+    const color = score >= 80 ? '#4caf86' : score >= 50 ? '#ffb74d' : '#e57373';
+    circle.style.borderColor = color;
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('scoreNum').style.color = color;
+    document.getElementById('scoreLabel').textContent = label;
+    document.getElementById('scoreSub').textContent =
+      `Job ${jobId} · ${detCount} features detected`;
+  }
+
+  function renderPlaceholderResults(score, label, detCount, jobId) {
+    const list = document.getElementById('detectList');
+    list.innerHTML = `
+      <li class="detect-item">
+        <div class="detect-cls">audit</div>
+        <div class="detect-body">
+          <div class="detect-clause">AccessScan Result</div>
+          <div class="detect-note">
+            ${detCount} accessibility features detected and assessed against DSAPT requirements.<br/>
+            Overall score: <strong>${score}%</strong> [${label}].<br/>
+            Download the PDF report below for full feature-by-feature results, 
+            annotated image, DSAPT clause references, and compliance notes.
+          </div>
+          <div class="detect-conf">Job ID: ${jobId}</div>
+        </div>
+        <span class="badge badge-${label === 'GOOD' ? 'COMPLIANT' : label === 'CRITICAL' ? 'NON-COMPLIANT' : 'NEEDS-REVIEW'}">${label}</span>
+      </li>
+    `;
+  }
+
+  // ── UI helpers ───────────────────────────────────────────────────────────────
+  function showProgress(msg, pct) {
+    document.getElementById('progress').style.display = 'flex';
+    document.getElementById('progressLabel').textContent = msg;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+  function hideProgress() {
+    document.getElementById('progress').style.display = 'none';
+  }
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = '⚠ ' + msg;
+    box.style.display = 'block';
+  }
+  function hideError() {
+    document.getElementById('errorBox').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

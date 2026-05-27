@@ -7,7 +7,7 @@ names: ['Obstruction', 'clear_path', 'handrail', 'kerb_cut', 'platform_edge', 'r
 
 roboflow:
   workspace: accessscamdsapt
-  project: accessscan-dsapt
+  project: accessscan-dsapt-0mpsv
   version: 1
   license: CC BY 4.0
-  url: https://universe.roboflow.com/accessscamdsapt/accessscan-dsapt/dataset/1
+  url: https://universe.roboflow.com/accessscamdsapt/accessscan-dsapt-0mpsv/dataset/1

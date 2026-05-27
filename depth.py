@@ -1,11 +1,6 @@
 """
 depth.py — MiDaS depth estimation module
-Sprint 2 → Sprint 4 | AccessScan
 
-CHANGE FROM depth.ipynb:
-  - estimate_depth() now accepts any image_path argument (dynamic)
-  - No more hardcoded 'ramp_photo.jpg'
-  - Used by main.py at runtime with the uploaded image path
 """
 
 import torch

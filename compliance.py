@@ -27,15 +27,18 @@ def is_adjacent(bbox_a: list, bbox_b: list, tolerance: float = 0.15) -> bool:
     return dist < max(diag * 2, 50)  # at least 50px tolerance
 
 
-def classify_compliance(detections: list, depth_map=None) -> list:
+def classify_compliance(detections: list, depth_map=None, image_shape=None) -> list:
     """
     Classify each detected feature against DSAPT rules.
 
     Args:
-        detections: List of dicts with keys:
-                      'class', 'confidence', 'bbox' ([x1,y1,x2,y2])
-        depth_map:  2D numpy array from depth.py (optional).
-                    Required for gradient-based checks (ramps).
+        detections:   List of dicts with keys:
+                        'class', 'confidence', 'bbox' ([x1,y1,x2,y2])
+        depth_map:    2D numpy array from depth.py (optional).
+                      Required for gradient-based checks (ramps) and
+                      depth-assisted width estimation (clear_path).
+        image_shape:  (height, width[, channels]) of the original image.
+                      Required for width estimation.
 
     Returns:
         List of compliance result dicts, one per detection.
@@ -77,8 +80,24 @@ def classify_compliance(detections: list, depth_map=None) -> list:
 
         # ── Width check (clear_path) ─────────────────────────────────────────
         elif check == 'width':
-            status = 'NEEDS REVIEW'
-            note = 'Path width measurement requires metric calibration — manual verification required'
+            if depth_map is not None and image_shape is not None:
+                from depth import estimate_width_mm
+                width_mm = estimate_width_mm(detection['bbox'], depth_map, image_shape)
+                threshold = rule.get('threshold', 1500)
+                if width_mm >= threshold:
+                    status = 'COMPLIANT'
+                    note = (f'Estimated path width ~{width_mm:.0f} mm — '
+                            f'meets {threshold} mm minimum (depth-assisted proxy)')
+                elif width_mm > 0:
+                    status = 'NON-COMPLIANT'
+                    note = (f'Estimated path width ~{width_mm:.0f} mm — '
+                            f'below {threshold} mm minimum (depth-assisted proxy; verify on-site)')
+                else:
+                    status = 'NEEDS REVIEW'
+                    note = 'Width estimation inconclusive — manual on-site verification required'
+            else:
+                status = 'NEEDS REVIEW'
+                note = 'Path width measurement requires depth data — manual verification required'
 
         # ── TGSI adjacency check (platform_edge, kerb_cut) ───────────────────
         elif check == 'tgsi_adjacent':

@@ -1,0 +1,30 @@
+{
+  "admin": {
+    "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "role": "admin",
+    "name": "Admin User",
+    "email": "admin@accessscan.local",
+    "created_at": "2025-01-01T00:00:00"
+  },
+  "auditor": {
+    "password_hash": "0b26f7caa1c2e5e3f11adfd22f47403ed214a1d4451117a18ea726b451a3aa61",
+    "role": "auditor",
+    "name": "Field Auditor",
+    "email": "auditor@accessscan.local",
+    "created_at": "2025-01-01T00:00:00"
+  },
+  "demo": {
+    "password_hash": "2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea",
+    "role": "viewer",
+    "name": "Demo User",
+    "email": "demo@accessscan.local",
+    "created_at": "2025-01-01T00:00:00"
+  },
+  "rishav23": {
+    "password_hash": "2f7d9683b67ec56713eb9dda1482b8ae51315b7bcd0771c82643e61373254cfb",
+    "role": "auditor",
+    "name": "Rishav",
+    "email": "",
+    "created_at": "2026-05-28T18:17:24.073654"
+  }
+}

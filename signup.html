@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccessScan — Create Account</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:         #0d1117;
+      --surface:    #161b22;
+      --surface2:   #1c2128;
+      --border:     #30363d;
+      --accent:     #2196f3;
+      --accent-dim: #1565c0;
+      --green:      #1a7a4a;
+      --green-dim:  #4caf86;
+      --red:        #c0392b;
+      --red-dim:    #e57373;
+      --amber:      #e67e22;
+      --amber-dim:  #ffb74d;
+      --text:       #e6edf3;
+      --muted:      #8b949e;
+      --mono:       'IBM Plex Mono', monospace;
+      --sans:       'IBM Plex Sans', sans-serif;
+      --radius:     8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 13px;
+      color: #fff;
+    }
+    .logo-text  { font-size: 17px; font-weight: 700; }
+    .logo-sub   { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+    .topbar-right { margin-left: auto; }
+    .link-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-family: var(--sans);
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: color .15s, border-color .15s;
+    }
+    .link-btn:hover { color: var(--text); border-color: var(--accent); }
+
+    /* ── Main ─────────────────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 36px 16px 48px;
+    }
+    .signup-wrap { width: 100%; max-width: 520px; }
+
+    .signup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px;
+    }
+    .signup-title    { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .signup-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── Two-column grid for some fields ─────────────────────────────────── */
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 16px;
+    }
+    @media (max-width: 520px) { .field-grid { grid-template-columns: 1fr; } }
+
+    /* ── Field ────────────────────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .field-wrap { position: relative; }
+    .field-wrap .icon {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none; font-size: 14px;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 9px 12px 9px 34px;
+      outline: none;
+      transition: border-color .15s;
+      appearance: none;
+    }
+    .field input:focus, .field select:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--muted); }
+    .field input.valid   { border-color: var(--green-dim); }
+    .field input.invalid { border-color: var(--red-dim); }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      min-height: 16px;
+      transition: color .15s;
+    }
+    .field-hint.ok  { color: var(--green-dim); }
+    .field-hint.err { color: var(--red-dim); }
+
+    /* pw toggle */
+    .pw-toggle {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 4px;
+    }
+    .pw-toggle:hover { color: var(--text); }
+
+    /* ── Password strength meter ──────────────────────────────────────────── */
+    .pw-strength {
+      margin-top: 6px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .pw-bar {
+      height: 4px;
+      flex: 1;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background .3s;
+    }
+    .pw-bar.active-1 { background: var(--red-dim); }
+    .pw-bar.active-2 { background: var(--amber-dim); }
+    .pw-bar.active-3 { background: var(--green-dim); }
+    .pw-strength-label {
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--muted);
+      min-width: 50px;
+      text-align: right;
+    }
+
+    /* ── Role cards ───────────────────────────────────────────────────────── */
+    .role-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .role-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      position: relative;
+    }
+    .role-card:hover { border-color: var(--accent); background: var(--surface2); }
+    .role-card.selected { border-color: var(--accent); background: rgba(33,150,243,0.08); }
+    .role-card input[type="radio"] { position: absolute; opacity: 0; }
+    .role-icon  { font-size: 20px; margin-bottom: 4px; }
+    .role-title { font-size: 13px; font-weight: 600; }
+    .role-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+    /* ── Error / success banners ──────────────────────────────────────────── */
+    .banner {
+      display: none;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .banner.show { display: flex; }
+    .banner.error {
+      background: rgba(192,57,43,.15);
+      border: 1px solid var(--red);
+      color: var(--red-dim);
+    }
+    .banner.success {
+      background: rgba(26,122,74,.15);
+      border: 1px solid var(--green);
+      color: var(--green-dim);
+    }
+
+    /* ── Submit button ────────────────────────────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--accent-dim); }
+    .btn-submit:disabled { opacity: .45; cursor: default; }
+    .btn-submit .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .signin-link {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+    .signin-link a { color: var(--accent); text-decoration: none; }
+    .signin-link a:hover { text-decoration: underline; }
+
+    /* ── Requirements checklist ───────────────────────────────────────────── */
+    .pw-reqs {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .req-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color .2s;
+    }
+    .req-item.met { color: var(--green-dim); }
+    .req-check { font-size: 10px; }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-mark">AS</div>
+  <div>
+    <div class="logo-text">AccessScan</div>
+    <div class="logo-sub">DSAPT Accessibility Audit — La Trobe × DITRDCA</div>
+  </div>
+  <div class="topbar-right">
+    <a href="login.html" class="link-btn">← Back to Sign In</a>
+  </div>
+</div>
+
+<main>
+  <div class="signup-wrap">
+    <div class="signup-card">
+      <div class="signup-title">Create Account</div>
+      <div class="signup-subtitle">Join AccessScan to start auditing public transport stops</div>
+
+      <!-- Banners -->
+      <div class="banner error" id="errorBanner">
+        <span>⚠</span><span id="errorMsg"></span>
+      </div>
+      <div class="banner success" id="successBanner">
+        <span>✓</span><span id="successMsg"></span>
+      </div>
+
+      <form id="signupForm" onsubmit="handleSignup(event)" novalidate>
+
+        <!-- Full name + Email -->
+        <div class="field-grid">
+          <div class="field">
+            <label for="fullName">Full Name *</label>
+            <div class="field-wrap">
+              <span class="icon">👤</span>
+              <input type="text" id="fullName" placeholder="Jane Smith"
+                     oninput="validateName()" required />
+            </div>
+            <div class="field-hint" id="nameHint"></div>
+          </div>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <div class="field-wrap">
+              <span class="icon">✉</span>
+              <input type="email" id="email" placeholder="jane@example.com"
+                     oninput="validateEmail()" />
+            </div>
+            <div class="field-hint" id="emailHint"></div>
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div class="field">
+          <label for="username">Username *</label>
+          <div class="field-wrap">
+            <span class="icon">#</span>
+            <input type="text" id="username" placeholder="jane_smith"
+                   oninput="validateUsername()" autocomplete="username" required />
+          </div>
+          <div class="field-hint" id="usernameHint">3–32 chars: lowercase letters, numbers, underscores</div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password">Password *</label>
+          <div class="field-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="password" placeholder="Min. 8 characters"
+                   oninput="validatePassword()" autocomplete="new-password" required />
+            <button type="button" class="pw-toggle" onclick="togglePw('password')">👁</button>
+          </div>
+          <!-- Strength meter -->
+          <div class="pw-strength">
+            <div class="pw-bar" id="bar1"></div>
+            <div class="pw-bar" id="bar2"></div>
+            <div class="pw-bar" id="bar3"></div>
+            <span class="pw-strength-label" id="strengthLabel"></span>
+          </div>
+          <!-- Requirements -->
+          <div class="pw-reqs">
+            <span class="req-item" id="req-len"><span class="req-check">○</span> 8+ chars</span>
+            <span class="req-item" id="req-letter"><span class="req-check">○</span> Letter</span>
+            <span class="req-item" id="req-number"><span class="req-check">○</span> Number</span>
+          </div>
+        </div>
+
+        <!-- Confirm password -->
+        <div class="field">
+          <label for="confirmPw">Confirm Password *</label>
+          <div class="field-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="confirmPw" placeholder="Re-enter password"
+                   oninput="validateConfirm()" autocomplete="new-password" required />
+            <button type="button" class="pw-toggle" onclick="togglePw('confirmPw')">👁</button>
+          </div>
+          <div class="field-hint" id="confirmHint"></div>
+        </div>
+
+        <!-- Role selection -->
+        <div class="field">
+          <label>Role *</label>
+          <div class="role-group" id="roleGroup">
+            <label class="role-card selected" id="roleAuditor">
+              <input type="radio" name="role" value="auditor" checked onchange="selectRole(this)" />
+              <div class="role-icon">🔍</div>
+              <div class="role-title">Auditor</div>
+              <div class="role-desc">Run audits, generate PDF reports, view all results</div>
+            </label>
+            <label class="role-card" id="roleViewer">
+              <input type="radio" name="role" value="viewer" onchange="selectRole(this)" />
+              <div class="role-icon">👁</div>
+              <div class="role-title">Viewer</div>
+              <div class="role-desc">View and download reports (read-only access)</div>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <div class="spinner"></div>
+          <span class="btn-text">Create Account</span>
+        </button>
+      </form>
+
+      <div class="signin-link">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>AccessScan v1.0 &nbsp;·&nbsp; La Trobe University &nbsp;·&nbsp; DITRDCA</footer>
+
+<script>
+  const API_BASE = 'http://localhost:8000';
+
+  // If already logged in, skip straight to the app
+  if (sessionStorage.getItem('as_token')) window.location.replace('index.html');
+
+  // ── Toggle password visibility ─────────────────────────────────────────────
+  function togglePw(id) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+  }
+
+  // ── Role card selection ────────────────────────────────────────────────────
+  function selectRole(radio) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    radio.closest('.role-card').classList.add('selected');
+  }
+
+  // ── Inline validators ──────────────────────────────────────────────────────
+  function setHint(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'field-hint ' + (type || '');
+  }
+  function setValidity(id, valid) {
+    const el = document.getElementById(id);
+    el.classList.toggle('valid', valid === true);
+    el.classList.toggle('invalid', valid === false);
+  }
+
+  function validateName() {
+    const v = document.getElementById('fullName').value.trim();
+    if (!v) { setHint('nameHint', 'Full name is required.', 'err'); setValidity('fullName', false); return false; }
+    if (v.length < 2) { setHint('nameHint', 'Name too short.', 'err'); setValidity('fullName', false); return false; }
+    setHint('nameHint', ''); setValidity('fullName', true); return true;
+  }
+
+  function validateEmail() {
+    const v = document.getElementById('email').value.trim();
+    if (!v) { setHint('emailHint', ''); setValidity('email', null); return true; } // optional
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    if (!ok) { setHint('emailHint', 'Enter a valid email address.', 'err'); setValidity('email', false); return false; }
+    setHint('emailHint', ''); setValidity('email', true); return true;
+  }
+
+  function validateUsername() {
+    const v = document.getElementById('username').value.trim();
+    const ok = /^[a-z0-9_]{3,32}$/.test(v);
+    if (!v) { setHint('usernameHint', '3–32 chars: lowercase letters, numbers, underscores', ''); setValidity('username', null); return false; }
+    if (!ok) { setHint('usernameHint', 'Only lowercase letters, numbers, underscores (3–32 chars)', 'err'); setValidity('username', false); return false; }
+    setHint('usernameHint', 'Looks good!', 'ok'); setValidity('username', true); return true;
+  }
+
+  function validatePassword() {
+    const v = document.getElementById('password').value;
+    const hasLen    = v.length >= 8;
+    const hasLetter = /[A-Za-z]/.test(v);
+    const hasNumber = /[0-9]/.test(v);
+
+    // Update requirement items
+    function reqMet(id, met) {
+      const el = document.getElementById(id);
+      el.classList.toggle('met', met);
+      el.querySelector('.req-check').textContent = met ? '✓' : '○';
+    }
+    reqMet('req-len',    hasLen);
+    reqMet('req-letter', hasLetter);
+    reqMet('req-number', hasNumber);
+
+    // Strength
+    const strength = (hasLen ? 1 : 0) + (hasLetter ? 1 : 0) + (hasNumber ? 1 : 0);
+    const labels   = ['', 'Weak', 'Fair', 'Strong'];
+    document.getElementById('strengthLabel').textContent = v ? labels[strength] : '';
+    [1,2,3].forEach(i => {
+      const bar = document.getElementById(`bar${i}`);
+      bar.className = 'pw-bar' + (strength >= i ? ` active-${strength}` : '');
+    });
+
+    const valid = hasLen && hasLetter && hasNumber;
+    setValidity('password', v ? valid : null);
+    if (document.getElementById('confirmPw').value) validateConfirm();
+    return valid;
+  }
+
+  function validateConfirm() {
+    const pw  = document.getElementById('password').value;
+    const cpw = document.getElementById('confirmPw').value;
+    if (!cpw) { setHint('confirmHint', '', ''); setValidity('confirmPw', null); return false; }
+    if (pw !== cpw) { setHint('confirmHint', 'Passwords do not match.', 'err'); setValidity('confirmPw', false); return false; }
+    setHint('confirmHint', 'Passwords match!', 'ok'); setValidity('confirmPw', true); return true;
+  }
+
+  // ── Banners ────────────────────────────────────────────────────────────────
+  function showError(msg)   { hideBanners(); document.getElementById('errorMsg').textContent = msg; document.getElementById('errorBanner').classList.add('show'); }
+  function showSuccess(msg) { hideBanners(); document.getElementById('successMsg').textContent = msg; document.getElementById('successBanner').classList.add('show'); }
+  function hideBanners()    { document.getElementById('errorBanner').classList.remove('show'); document.getElementById('successBanner').classList.remove('show'); }
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
+  async function handleSignup(e) {
+    e.preventDefault();
+    hideBanners();
+
+    // Run all validators
+    const ok = validateName() & validateEmail() & validateUsername() & validatePassword() & validateConfirm();
+    if (!ok) { showError('Please fix the errors above before continuing.'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    const role = document.querySelector('input[name="role"]:checked')?.value || 'auditor';
+    const body = new FormData();
+    body.append('username', document.getElementById('username').value.trim());
+    body.append('password', document.getElementById('password').value);
+    body.append('name',     document.getElementById('fullName').value.trim());
+    body.append('email',    document.getElementById('email').value.trim());
+    body.append('role',     role);
+
+    try {
+      const res = await fetch(`${API_BASE}/register`, { method: 'POST', body });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        showError(data.detail || 'Registration failed. Please try again.');
+        return;
+      }
+
+      showSuccess(`Account created! Signing you in as ${data.username}…`);
+
+      // Auto-login after registration
+      setTimeout(async () => {
+        const loginBody = new FormData();
+        loginBody.append('username', document.getElementById('username').value.trim());
+        loginBody.append('password', document.getElementById('password').value);
+        try {
+          const lr = await fetch(`${API_BASE}/login`, { method: 'POST', body: loginBody });
+          if (lr.ok) {
+            const ld = await lr.json();
+            sessionStorage.setItem('as_token', ld.token);
+            sessionStorage.setItem('as_user', JSON.stringify({ username: ld.username, name: ld.name, role: ld.role }));
+            window.location.replace('index.html');
+          } else {
+            window.location.replace('login.html');
+          }
+        } catch (_) {
+          window.location.replace('login.html');
+        }
+      }, 1000);
+
+    } catch (_) {
+      showError('Cannot reach the server. Is the backend running on port 8000?');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+</script>
+</body>
+</html>

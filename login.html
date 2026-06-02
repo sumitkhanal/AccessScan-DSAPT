@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccessScan — Sign In</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:         #0d1117;
+      --surface:    #161b22;
+      --surface2:   #1c2128;
+      --border:     #30363d;
+      --accent:     #2196f3;
+      --accent-dim: #1565c0;
+      --green:      #1a7a4a;
+      --green-dim:  #4caf86;
+      --red:        #c0392b;
+      --red-dim:    #e57373;
+      --text:       #e6edf3;
+      --muted:      #8b949e;
+      --mono:       'IBM Plex Mono', monospace;
+      --sans:       'IBM Plex Sans', sans-serif;
+      --radius:     8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 13px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-top: 1px;
+    }
+
+    /* ── Main ─────────────────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px 36px;
+    }
+
+    .login-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Form ─────────────────────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 18px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field-wrap {
+      position: relative;
+    }
+    .field-wrap .icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      font-size: 15px;
+    }
+    .field input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 10px 12px 10px 36px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+    }
+    .field input::placeholder {
+      color: var(--muted);
+    }
+
+    /* password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 15px;
+      padding: 4px;
+    }
+    .pw-toggle:hover { color: var(--text); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-login:hover { background: var(--accent-dim); }
+    .btn-login:disabled { opacity: 0.5; cursor: default; }
+    .btn-login .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-login.loading .spinner { display: block; }
+    .btn-login.loading .btn-text { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Error banner ─────────────────────────────────────────────────────── */
+    .error-banner {
+      display: none;
+      background: rgba(192,57,43,0.15);
+      border: 1px solid var(--red);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--red-dim);
+      margin-bottom: 16px;
+      gap: 8px;
+      align-items: center;
+    }
+    .error-banner.show { display: flex; }
+
+    /* ── Demo creds ───────────────────────────────────────────────────────── */
+    .demo-creds {
+      margin-top: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .demo-creds h4 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .demo-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .demo-row:last-child { border-bottom: none; }
+    .demo-role {
+      color: var(--muted);
+      font-size: 11px;
+      font-family: var(--mono);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+    .demo-fill {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: var(--sans);
+      padding: 3px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .demo-fill:hover { background: rgba(33,150,243,0.12); }
+
+    /* ── Footer ───────────────────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo-mark">AS</div>
+  <div>
+    <div class="logo-text">AccessScan</div>
+    <div class="logo-sub">DSAPT Accessibility Audit — La Trobe × DITRDCA</div>
+  </div>
+</div>
+
+<main>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-title">Sign in</div>
+      <div class="login-subtitle">Sign in to access the AccessScan audit dashboard</div>
+
+      <!-- Error banner -->
+      <div class="error-banner" id="errorBanner">
+        <span>⚠</span>
+        <span id="errorMsg">Invalid username or password.</span>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <!-- Username -->
+        <div class="field">
+          <label for="username">Username</label>
+          <div class="field-wrap">
+            <span class="icon">👤</span>
+            <input type="text" id="username" name="username"
+                   placeholder="Enter username" autocomplete="username" required />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="field-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="password" name="password"
+                   placeholder="Enter password" autocomplete="current-password" required />
+            <button type="button" class="pw-toggle" onclick="togglePw()" id="pwToggle" title="Show/hide password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <div class="spinner"></div>
+          <span class="btn-text">Sign In</span>
+        </button>
+      </form>
+
+      <!-- Demo credentials -->
+      <div class="demo-creds">
+        <h4>Demo Credentials</h4>
+        <div class="demo-row">
+          <div>
+            <strong>admin</strong> / admin123
+            <span class="demo-role">admin</span>
+          </div>
+          <button class="demo-fill" onclick="fillCreds('admin','admin123')">Use</button>
+        </div>
+        <div class="demo-row">
+          <div>
+            <strong>auditor</strong> / audit123
+            <span class="demo-role">auditor</span>
+          </div>
+          <button class="demo-fill" onclick="fillCreds('auditor','audit123')">Use</button>
+        </div>
+        <div class="demo-row">
+          <div>
+            <strong>demo</strong> / demo
+            <span class="demo-role">viewer</span>
+          </div>
+          <button class="demo-fill" onclick="fillCreds('demo','demo')">Use</button>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:18px;font-size:13px;color:var(--muted)">
+        New to AccessScan? <a href="signup.html" style="color:var(--accent);text-decoration:none;">Create an account</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  AccessScan v1.0 &nbsp;·&nbsp; La Trobe University &nbsp;·&nbsp; DITRDCA
+</footer>
+
+<script>
+  const API_BASE = 'http://localhost:8000';
+
+  // ── If already logged in, skip to the app ──────────────────────────────────
+  (function() {
+    const token = sessionStorage.getItem('as_token');
+    if (token) window.location.replace('index.html');
+  })();
+
+  function fillCreds(user, pw) {
+    document.getElementById('username').value = user;
+    document.getElementById('password').value = pw;
+    document.getElementById('username').focus();
+  }
+
+  function togglePw() {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function showError(msg) {
+    const banner = document.getElementById('errorBanner');
+    document.getElementById('errorMsg').textContent = msg;
+    banner.classList.add('show');
+  }
+  function hideError() {
+    document.getElementById('errorBanner').classList.remove('show');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    hideError();
+
+    const btn   = document.getElementById('loginBtn');
+    const uname = document.getElementById('username').value.trim();
+    const pw    = document.getElementById('password').value;
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    try {
+      const body = new FormData();
+      body.append('username', uname);
+      body.append('password', pw);
+
+      const res = await fetch(`${API_BASE}/login`, { method: 'POST', body });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showError(err.detail || 'Invalid username or password.');
+        return;
+      }
+
+      const data = await res.json();
+      sessionStorage.setItem('as_token', data.token);
+      sessionStorage.setItem('as_user',  JSON.stringify({ username: data.username, name: data.name, role: data.role }));
+
+      // Redirect to main app
+      window.location.replace('index.html');
+
+    } catch (err) {
+      showError('Cannot reach the server. Is the backend running on port 8000?');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+</script>
+</body>
+</html>
